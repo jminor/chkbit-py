@@ -18,6 +18,7 @@ class Stat(Enum):
     WARN_OLD = "old"
     NEW = "new"
     UPDATE = "upd"
+    MISSING = "MIS"
     OK = "ok "
     SKIP = "skp"
     INTERNALEXCEPTION = "EXC"
@@ -74,6 +75,13 @@ class Index:
                 elif "a" in old:
                     a = old["a"]
             self.new[name] = self._calc_file(name, a)
+
+    def check_missing(self):
+        old_names = set(self.old.keys())
+        new_names = set(self.files)
+        missing_names = old_names.difference(new_names)
+        for name in missing_names:
+            self._log(Stat.MISSING, name)
 
     # check/update the index (old vs new)
     def check_fix(self, force):

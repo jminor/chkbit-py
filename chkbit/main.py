@@ -13,6 +13,7 @@ Status codes:
   old: warning, file replaced by an older version
   new: new file
   upd: file updated
+  MIS: missing file
   ok : check ok
   skp: skipped (see .chkbitignore)
   EXC: internal exception
@@ -23,6 +24,7 @@ class Main:
     def __init__(self):
         self.stdscr = None
         self.dmg_list = []
+        self.missing_list = []
         self.err_list = []
         self.modified = False
         self.verbose = False
@@ -36,6 +38,8 @@ class Main:
         else:
             if stat == Stat.ERR_DMG:
                 self.dmg_list.append(path)
+            elif stat == Stat.MISSING:
+                self.missing_list.append(path)
             elif stat == Stat.INTERNALEXCEPTION:
                 self.err_list.append(path)
             elif stat in [Stat.OK, Stat.UPDATE, Stat.NEW]:
@@ -161,7 +165,14 @@ class Main:
             )
             if self.modified:
                 print("Indices were updated.")
-
+        if self.missing_list:
+            print("chkbit could not locate these missing files:", file=sys.stderr)
+            for mis in self.missing_list:
+                print(mis, file=sys.stderr)
+            print(
+                f"error: detected {len(self.missing_list)} missing file(s)!",
+                file=sys.stderr,
+            )
         if self.dmg_list:
             print("chkbit detected damage in these files:", file=sys.stderr)
             for err in self.dmg_list:
@@ -175,7 +186,7 @@ class Main:
             for err in self.err_list:
                 print(err, file=sys.stderr)
 
-        if self.dmg_list or self.err_list:
+        if self.missing_list or self.dmg_list or self.err_list:
             sys.exit(1)
 
 

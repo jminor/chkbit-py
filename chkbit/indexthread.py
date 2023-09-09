@@ -48,6 +48,8 @@ class IndexThread:
             # compare
             e.check_fix(self.context.force)
 
+            e.check_missing()
+
             # save if update is set
             if self.update:
                 if e.save():
